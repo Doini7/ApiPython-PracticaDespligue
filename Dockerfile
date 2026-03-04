@@ -5,11 +5,12 @@ RUN pip install -r requirements.txt
 
 FROM base AS dev
 EXPOSE 5000
-RUN pip install -r requirements-dev.txt && flask --app run run --debug
+RUN pip install -r requirements-dev.txt
+CMD ["flask", "--app", "run", "run", "--debug"]
 
 FROM base AS test
 RUN pip install -r requirements-dev.txt && pytest -v
 
 FROM base AS production
 EXPOSE 8000
-RUN gunicorn --bind 0.0.0.0:8000 run:app
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run:app"]
