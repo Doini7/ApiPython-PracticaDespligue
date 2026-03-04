@@ -1,0 +1,5 @@
+# Dependencias de producción
+-r requirements.txt
+
+# Dependencias de desarrollo/test
+pytest==8.*
