@@ -1,0 +1,49 @@
+name: Wokflows — ApiPython
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Ejecutar tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Ejecutar tests
+        run: docker build --target test .
+        
+  docker:
+    name: Build y push imagen
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login en Docker
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Poner maquina virtual
+        uses: docker/setup-qemu-action@v3
+          
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          target: production
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USER }}/pythonapp:latest 
+            ${{ secrets.DOCKER_HUB_USER }}/pythonapp:${{ github.sha }}
